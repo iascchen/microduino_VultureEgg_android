@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_id": "vultureegg-63cc2",
+    "project_number": "606583578768",
+    "name": "VultureEgg"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606583578768:android:6ff30e813226469c",
+        "client_id": "android:me.iasc.vultureegg.app",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "me.iasc.vultureegg.app",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-73200446-3"
+          }
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}

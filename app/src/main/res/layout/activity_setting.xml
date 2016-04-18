@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context="me.iasc.smartegg.app.SettingActivity">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/mcotton_server"
+            android:id="@+id/textWarnSetting" android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"/>
+
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editServer"
+            android:layout_below="@+id/textWarnSetting"
+            android:layout_alignParentEnd="true"/>
+    <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_below="@+id/editServer" android:layout_alignParentStart="true"
+                android:id="@+id/radioGroup">
+    <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                 android:text="mcotton.microduino.cn" android:id="@+id/server_cn"
+                 android:layout_below="@+id/editServer" android:layout_alignParentStart="true" android:checked="true"/>
+    <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                 android:text="mcotton.microduino.cc" android:id="@+id/server_cc"
+                 android:layout_below="@+id/server_cn" android:layout_alignParentStart="true"/>
+    <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                 android:text="192.168.199.240:3000" android:id="@+id/server_lan"
+                 android:layout_below="@+id/server_cc" android:layout_alignParentStart="true"/>
+    </RadioGroup>
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:textAppearance="?android:attr/textAppearanceLarge" android:text="mCotton Account"
+              android:id="@+id/textWarnSetting2"
+              android:layout_margin="10dp"
+              android:layout_centerVertical="true"
+              android:layout_centerHorizontal="true"/>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editUser"
+            android:inputType="textEmailAddress"
+            android:layout_below="@+id/textWarnSetting2"
+            android:layout_alignParentEnd="true" android:hint="User"/>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editPassword"
+            android:inputType="textPassword"
+            android:layout_below="@+id/editUser"
+            android:layout_alignParentEnd="true" android:hint="Password"/>
+</RelativeLayout>
