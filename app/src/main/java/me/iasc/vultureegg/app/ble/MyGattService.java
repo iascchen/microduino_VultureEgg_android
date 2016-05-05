@@ -26,17 +26,11 @@ import java.util.UUID;
 public class MyGattService {
     private static HashMap<UUID, String> attributes = new HashMap<UUID, String>();
 
-    // public final static UUID SOFT_SERIAL_SERVICE = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
-
-    public static final UUID GENERIC_ACCESS = new UUID((0x1800L << 32) | 0x1000,GattUtils.leastSigBits);
-
+    public final static UUID SOFT_SERIAL_SERVICE = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
     public final static UUID VULTURE_SERVICE = UUID.fromString("0000f0c0-0000-1000-8000-00805f9b34fb");
 
     static {
-        //attributes.put(SOFT_SERIAL_SERVICE, "Microduino BLE Serial");
-
-        attributes.put(GENERIC_ACCESS, "Generic Access");
-
+        attributes.put(SOFT_SERIAL_SERVICE, "Microduino BLE Serial");
         attributes.put(VULTURE_SERVICE, "Microduino VultureEgg Command");
     }
 

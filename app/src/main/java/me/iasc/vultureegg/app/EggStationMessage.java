@@ -28,7 +28,8 @@ public class EggStationMessage {
     static String DEV_ID = "device_id";
 
     // public static String pi = "Pi;35.2;65.5;1200;1.00";
-    static String[] PI_FIELDS = {"type", "Env Temperature", "Env Humidity", "Env Lightness","Env PM 10", "Env Air Pollution"};
+//    static String[] PI_FIELDS = {"type", "Env Temperature", "Env Humidity", "Env Lightness","Env PM 10", "Env Air Pollution"};
+    static String[] PI_FIELDS = {"type", "Env Temperature", "Env Humidity", "Env Lightness", "Env PM 10"};
 
     public static ConcurrentHashMap<String, String> parse(String deviceId, String msg) {
         Log.d(TAG, "Parse : " + msg);

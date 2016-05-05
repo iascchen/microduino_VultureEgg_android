@@ -518,7 +518,7 @@ public class DeviceControlActivity extends Activity {
                         String txt = new String(MyMeasureValue.hexToBytes(tmpmsg));
 
                         buffer.append(txt);
-                        // Log.d(TAG, "message buffer: " + buffer.toString());
+                        Log.d(TAG, "message buffer: " + buffer.toString());
 
                         if (txt.endsWith("\n")) {
                             String msg = buffer.toString().trim();
@@ -626,67 +626,75 @@ public class DeviceControlActivity extends Activity {
             // TODO: Please add your code, enable ble notification
 
             // Enable notify
-            if (mBluetoothLeService == null) return "Failed";
+            if (currDevice.getType().equals(DeviceModel.TYPE_STATION)) {
 
-            ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_TRANS, true);
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error Enable COMMAND_DATA");
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
+                        MyGattService.SOFT_SERIAL_SERVICE, MyGattCharacteristic.MD_RX_TX, true);
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error Enable Microduino Serial");
 
-            // Write CMD
+            } else if (currDevice.getType().equals(DeviceModel.TYPE_EGG)) {
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_TRANS, true);
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error Enable COMMAND_DATA");
 
-            // MPU
+                // Write CMD
 
-            if (mBluetoothLeService == null) return "Failed";
-            ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
-                    CommandMessage.getVultureStop(CommandMessage.MPU));
+                // MPU
 
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error MPU_STOP");
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
+                        CommandMessage.getVultureStop(CommandMessage.MPU));
 
-            if (mBluetoothLeService == null) return "Failed";
-            ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
-                    CommandMessage.getVultureCmd(CommandMessage.MPU, 3));
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error MPU_STOP");
 
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error MPU_START");
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
+                        CommandMessage.getVultureCmd(CommandMessage.MPU, 3));
 
-            // TEM
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error MPU_START");
 
-            if (mBluetoothLeService == null) return "Failed";
-            ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
-                    CommandMessage.getVultureStop(CommandMessage.TEM));
+                // TEM
 
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error TEM_STOP");
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
+                        CommandMessage.getVultureStop(CommandMessage.TEM));
 
-            if (mBluetoothLeService == null) return "Failed";
-            ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
-                    CommandMessage.getVultureCmd(CommandMessage.TEM, 3));
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error TEM_START");
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error TEM_STOP");
 
-            // HUM
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
+                        CommandMessage.getVultureCmd(CommandMessage.TEM, 3));
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error TEM_START");
 
-            if (mBluetoothLeService == null) return "Failed";
-            ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
-                    CommandMessage.getVultureStop(CommandMessage.HUM));
+                // HUM
 
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error HUM_STOP");
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
+                        CommandMessage.getVultureStop(CommandMessage.HUM));
 
-            if (mBluetoothLeService == null) return "Failed";
-            ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
-                    CommandMessage.getVultureCmd(CommandMessage.HUM, 3));
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error HUM_START");
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error HUM_STOP");
 
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.writeGattCharacteristicNoResponse(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_CMD,
+                        CommandMessage.getVultureCmd(CommandMessage.HUM, 3));
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error HUM_START");
+            }
             return "Done";
         }
 

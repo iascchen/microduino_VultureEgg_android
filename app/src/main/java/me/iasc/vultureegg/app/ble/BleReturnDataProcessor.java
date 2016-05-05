@@ -31,7 +31,8 @@ public class BleReturnDataProcessor {
         Log.d(TAG, "BleReturnDataProcessor : " + characteristicUuid.toString());
 
         // TODO: Please add your code, access more characteristics
-        if (MyGattCharacteristic.COMMAND_TRANS.equals(characteristicUuid)) {
+        if (MyGattCharacteristic.COMMAND_TRANS.equals(characteristicUuid)
+                || MyGattCharacteristic.MD_RX_TX.equals(characteristicUuid)) {
             Log.d(TAG, characteristicUuid.toString());
             ret = EXTRA_SERIAL_MSG;
         }

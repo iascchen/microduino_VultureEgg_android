@@ -668,18 +668,28 @@ public class MyDevicesShowActivity extends Activity {
         protected String doInBackground(String... params) {
             address = params[0];
             Log.v(TAG, "EnableNotificationTask doInBackground call :" + address);
+            BleDevStatus si = statusMap.get(address);
 
             boolean ret = false;
 
             // TODO: Please add your code, enable ble notification
 
             // Enable notify
-            if (mBluetoothLeService == null) return "Failed";
 
-            ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
-                    MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_TRANS, true);
-            if (ret) waitIdle();
-            else Log.v(TAG, "Error Enable COMMAND_DATA");
+            if (DeviceModel.TYPE_STATION.equals(si.type)) {
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
+                        MyGattService.SOFT_SERIAL_SERVICE, MyGattCharacteristic.MD_RX_TX, true);
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error Enable Microduino Serial");
+            } else if (DeviceModel.TYPE_EGG.equals(si.type)) {
+
+                if (mBluetoothLeService == null) return "Failed";
+                ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
+                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_TRANS, true);
+                if (ret) waitIdle();
+                else Log.v(TAG, "Error Enable COMMAND_DATA");
+            }
 
             return "Done";
         }
@@ -688,8 +698,12 @@ public class MyDevicesShowActivity extends Activity {
         protected void onPostExecute(String result) {
             Log.v(TAG, "EnableNotificationTask onPostExecute called :" + address + " , " + result);
 
-            SetIntervalTask task = new SetIntervalTask();
-            task.execute(address);
+            BleDevStatus si = statusMap.get(address);
+
+            if (DeviceModel.TYPE_EGG.equals(si.type)) {
+                SetIntervalTask task = new SetIntervalTask();
+                task.execute(address);
+            }
         }
     }
 

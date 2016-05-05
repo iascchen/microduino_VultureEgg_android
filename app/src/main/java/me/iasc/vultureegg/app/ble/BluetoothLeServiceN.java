@@ -413,28 +413,4 @@ public class BluetoothLeServiceN extends Service {
             sb.append(String.format("%02x", b & 0xff));
         return sb.toString();
     }
-
-    public static final int CONN_INTERVAL = 0xffff;
-    public static final int SUPERVISION_TIMEOUT = 0xffff;
-
-    public boolean setConnectionInterval(String address, int connInterval, int supervisionTimeout) {
-        BluetoothGattCharacteristic _nc = getGattCharacteristic(address, MyGattService.GENERIC_ACCESS,
-                MyGattCharacteristic.PERIPERAL_PREFFERED_CONNECTION_PARAMETERS);
-
-        if (_nc == null) {
-            Log.v(TAG, "setConnectionInterval : nc is null");
-            return false;
-        }
-
-        byte[] value = {(byte) (connInterval & 0x00FF), // gets LSB of 2 byte value
-                (byte) ((connInterval & 0xFF00) >> 8), // gets MSB of 2 byte value
-                (byte) (connInterval & 0x00FF),
-                (byte) ((connInterval & 0xFF00) >> 8),
-                0, 0,
-                (byte) (supervisionTimeout & 0x00FF),
-                (byte) ((supervisionTimeout & 0xFF00) >> 8)
-        };
-        _nc.setValue(value);
-        return writeCharacteristic(address, _nc);
-    }
 }
