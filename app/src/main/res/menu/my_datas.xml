@@ -14,25 +14,12 @@
      limitations under the License.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_refresh"
-          android:checkable="false"
-          android:orderInCategory="1"
-          android:showAsAction="ifRoom"/>
-
-    <item android:id="@+id/menu_show"
-          android:title="@string/menu_show"
+    <item android:id="@+id/menu_dump"
+          android:title="@string/menu_dump"
           android:orderInCategory="100"
           android:showAsAction="ifRoom|withText"/>
-    <item android:id="@+id/menu_data"
-          android:title="@string/menu_data"
-          android:orderInCategory="200"
-          android:showAsAction="ifRoom|withText"/>
-    <item android:id="@+id/menu_add"
-          android:title="@string/menu_add"
-          android:orderInCategory="200"
-          android:showAsAction="ifRoom|withText"/>
-    <item android:id="@+id/menu_setting"
-          android:title="@string/menu_setting"
-          android:orderInCategory="200"
-          android:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/menu_reset"
+          android:title="@string/menu_reset"
+          android:orderInCategory="300"
+          android:showAsAction="withText"/>
 </menu>

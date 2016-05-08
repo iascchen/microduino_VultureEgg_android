@@ -32,6 +32,8 @@
     <string name="connect_failed">连接失败</string>
     <string name="title_my_devices">的设备</string>
 
+    <string name="title_data">Preview Data</string>
+
     <!-- Menu items -->
     <string name="menu_connect">Connect</string>
     <string name="menu_disconnect">Disconnect</string>
@@ -41,6 +43,10 @@
     <string name="stop_reading">Stop</string>
     <string name="menu_start_logging">Start logging</string>
     <string name="menu_stop_logging">Stop logging</string>
+
+    <string name="menu_data">Preview Data</string>
+    <string name="menu_dump">Dump All</string>
+    <string name="menu_reset">Clear Data</string>
 
     <string name="is_serial">Serial Present:</string>
     <string name="title_activity_compass">CompassActivity</string>

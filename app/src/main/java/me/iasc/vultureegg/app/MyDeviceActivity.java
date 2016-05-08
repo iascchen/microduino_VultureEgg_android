@@ -75,6 +75,7 @@ public class MyDeviceActivity extends ListActivity {
         menu.findItem(R.id.menu_refresh).setVisible(true);
         menu.findItem(R.id.menu_show).setVisible(true);
         menu.findItem(R.id.menu_setting).setVisible(true);
+        menu.findItem(R.id.menu_data).setVisible(true);
         return true;
     }
 
@@ -108,6 +109,13 @@ public class MyDeviceActivity extends ListActivity {
             case R.id.menu_setting:
                 final Intent intent3 = new Intent(this, SettingActivity.class);
                 startActivity(intent3);
+                break;
+            case R.id.menu_data:
+                mTracker.send(new HitBuilders.EventBuilder().setCategory("Action")
+                        .setAction("PreviewData").build());
+
+                final Intent intent4 = new Intent(this, DataListActivity.class);
+                startActivity(intent4);
                 break;
         }
         return true;

@@ -249,22 +249,26 @@ public class DeviceControlActivity extends Activity {
         public void onConnect(boolean signedInAutomatically) {
             Log.v(TAG, "mCottonServer onConnect");
 
+            if (mMeteor == null) return;
+
             mMeteor.loginWithEmail(email, password, new ResultListener() {
                 @Override
                 public void onSuccess(String s) {
                     Log.v(TAG, "mCottonServer Logon");
-                    Toast.makeText(getApplicationContext(), "mCotton Logon", Toast.LENGTH_LONG).show();
 
                     isCottonReady = true;
                     mMeteor.subscribe("projectDevicesOfMine", new Object[]{PROJECT_NAMES});
+
+                    Toast.makeText(getApplicationContext(), "mCotton Logon", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onError(String s, String s1, String s2) {
                     Log.v(TAG, "Login Error : " + s);
-                    Toast.makeText(getApplicationContext(), "Please check your mCotton account", Toast.LENGTH_LONG).show();
 
                     isCottonReady = false;
+
+                    Toast.makeText(getApplicationContext(), "Please check your mCotton account", Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -626,7 +630,7 @@ public class DeviceControlActivity extends Activity {
             // TODO: Please add your code, enable ble notification
 
             // Enable notify
-            if (currDevice.getType().equals(DeviceModel.TYPE_STATION)) {
+            if (currDevice != null && DeviceModel.TYPE_STATION.equals(currDevice.getType())) {
 
                 if (mBluetoothLeService == null) return "Failed";
                 ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
@@ -634,7 +638,7 @@ public class DeviceControlActivity extends Activity {
                 if (ret) waitIdle();
                 else Log.v(TAG, "Error Enable Microduino Serial");
 
-            } else if (currDevice.getType().equals(DeviceModel.TYPE_EGG)) {
+            } else if (currDevice != null && DeviceModel.TYPE_EGG.equals(currDevice.getType())) {
                 if (mBluetoothLeService == null) return "Failed";
                 ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
                         MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_TRANS, true);
@@ -705,4 +709,3 @@ public class DeviceControlActivity extends Activity {
         }
     }
 }
-

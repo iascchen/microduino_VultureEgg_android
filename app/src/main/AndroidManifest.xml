@@ -49,12 +49,13 @@
         <activity
                 android:name=".MyDevicesShowActivity"
                 android:label="@string/title_activity_my_devices_show"
-                android:screenOrientation="portrait">
-        </activity>
+                android:screenOrientation="portrait"/>
         <activity
                 android:name=".SettingActivity"
-                android:label="@string/title_activity_setting">
-        </activity>
+                android:label="@string/title_activity_setting"/>
+        <activity
+                android:name=".DataListActivity"
+                android:screenOrientation="portrait"/>
 
         <service
                 android:name=".ble.BluetoothLeServiceN"

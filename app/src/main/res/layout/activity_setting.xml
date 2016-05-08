@@ -26,15 +26,16 @@
     <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_below="@+id/editServer" android:layout_alignParentStart="true"
                 android:id="@+id/radioGroup">
-    <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                 android:text="mcotton.microduino.cn" android:id="@+id/server_cn"
-                 android:layout_below="@+id/editServer" android:layout_alignParentStart="true" android:checked="true"/>
-    <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                 android:text="mcotton.microduino.cc" android:id="@+id/server_cc"
-                 android:layout_below="@+id/server_cn" android:layout_alignParentStart="true"/>
-    <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                 android:text="192.168.199.240:3000" android:id="@+id/server_lan"
-                 android:layout_below="@+id/server_cc" android:layout_alignParentStart="true"/>
+        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                     android:text="mcotton.microduino.cn" android:id="@+id/server_cn"
+                     android:layout_below="@+id/editServer" android:layout_alignParentStart="true"
+                     android:checked="true"/>
+        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                     android:text="mcotton.microduino.cc" android:id="@+id/server_cc"
+                     android:layout_below="@+id/server_cn" android:layout_alignParentStart="true"/>
+        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                     android:text="192.168.199.240:3000" android:id="@+id/server_lan"
+                     android:layout_below="@+id/server_cc" android:layout_alignParentStart="true"/>
     </RadioGroup>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"

@@ -17,8 +17,6 @@
 
 package me.iasc.vultureegg.app;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Properties;
 
 public class BleDevStatus {

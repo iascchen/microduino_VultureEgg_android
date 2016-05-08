@@ -37,6 +37,8 @@ import im.delight.android.ddp.MeteorCallback;
 import im.delight.android.ddp.ResultListener;
 import me.iasc.vultureegg.app.ble.*;
 import me.iasc.vultureegg.app.ble.characteristics.MyMeasureValue;
+import me.iasc.vultureegg.app.db.RecordDAO;
+import me.iasc.vultureegg.app.db.RecordModel;
 import me.iasc.vultureegg.app.db.DeviceModel;
 import org.json.JSONObject;
 
@@ -80,6 +82,8 @@ public class MyDevicesShowActivity extends Activity {
 
     public static int intervalMpu = 2, intervalTem = 70, intervalHum = 20;
     public static boolean enableMpu = true, enableTem = true, enableHum = true;
+
+    private RecordDAO recordDAO = null;
 
 //    private ImageView infoButton;
 
@@ -149,6 +153,8 @@ public class MyDevicesShowActivity extends Activity {
         LinearLayout layout = (LinearLayout) findViewById(R.id.layout);
 
         settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        recordDAO = new RecordDAO(this);
 
         Intent intent = getIntent();
         devicelist = intent.getParcelableArrayListExtra(ARG_DEVICES);
@@ -353,8 +359,9 @@ public class MyDevicesShowActivity extends Activity {
                 @Override
                 public void onSuccess(String s) {
                     Log.v(TAG, "mCottonServer Logon");
-                    Toast.makeText(getApplicationContext(), "mCotton Logon", Toast.LENGTH_LONG).show();
                     isCottonReady = true;
+
+                    Toast.makeText(getApplicationContext(), "mCotton Logon", Toast.LENGTH_LONG).show();
 
                     if (devicelist != null) {
                         ArrayList<String> device_ids = new ArrayList<String>();
@@ -561,6 +568,7 @@ public class MyDevicesShowActivity extends Activity {
                                 buffeerMap.put(adr, buffer);
 
                                 ConcurrentHashMap map = EggMessage.parse(si.deviceId, msg);
+                                saveMessageToDB(recordDAO, map);
                                 sendMessageToMCotton(mMeteor, map);
 
                                 textview.setText(si.toString() + "\n" + msg);
@@ -580,6 +588,8 @@ public class MyDevicesShowActivity extends Activity {
 
                             if (msg.startsWith(EggStationMessage.PI)) {
                                 ConcurrentHashMap map = EggStationMessage.parse(si.deviceId, msg);
+
+                                saveMessageToDB(recordDAO, map);
                                 sendMessageToMCotton(mMeteor, map);
 
                                 textview.setText(si.toString() + "\n" + msg);
@@ -775,5 +785,29 @@ public class MyDevicesShowActivity extends Activity {
             //Log.v(TAG, "sendMessageToMCotton : " + msg);
             meteor.call("dataMessageInsert", new Object[]{msg});
         }
+    }
+
+    public static void saveMessageToDB(RecordDAO recordDAO, ConcurrentHashMap msg) {
+        String key, value;
+        StringBuilder valueBuffer = new StringBuilder();
+        String dev_id = (String) msg.get("device_id");
+
+        for (int i = 0; i < RecordModel.DATA_MAP_KEYS.length; i++) {
+            key = RecordModel.DATA_MAP_KEYS[i];
+
+            value = (String) msg.get(key);
+            valueBuffer.append(RecordModel.DUMP_SEPRATOR);
+            if (value != null) {
+                valueBuffer.append(value.trim());
+            }
+        }
+
+        String values = valueBuffer.toString();
+        Log.v(TAG, "saveMessageToDB : " + values);
+
+        RecordModel entity = new RecordModel();
+        entity.setDeviceId(dev_id);
+        entity.setValue(values);
+        recordDAO.save(entity);
     }
 }

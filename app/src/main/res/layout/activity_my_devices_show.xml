@@ -105,8 +105,6 @@
                 android:layout_alignBottom="@+id/textIntervalTem"
                 android:layout_toEndOf="@+id/checkBoxTem"/>
 
-
-
     </RelativeLayout>
 
     <Button
