@@ -8,6 +8,8 @@
       <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.github.delight-im/Android-DDP/v3.1.2/jars/libs/jackson-mapper-asl-1.9.7.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.delight-im/Android-DDP/v3.1.2/a19c94aeca08238b765061838e3caa1819f0ac17/Android-DDP-v3.1.2-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>
