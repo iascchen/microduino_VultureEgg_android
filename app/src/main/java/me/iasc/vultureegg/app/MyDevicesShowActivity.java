@@ -66,7 +66,7 @@ public class MyDevicesShowActivity extends Activity {
 //    // private static String email = "iasc@163.com", password = "SucMicro123";
 //    private static String email = "iasc@163.com", password = "123456";
 
-    private static List<String> subscriptionIdList;
+    private static String subscriptionId;
 
     public static final String ARG_DEVICES = "all_devices";
 
@@ -339,12 +339,6 @@ public class MyDevicesShowActivity extends Activity {
         } else {
             Log.v(TAG, "mCottonServer mMeteor old");
 
-            if (subscriptionIdList == null) {
-                subscriptionIdList = new ArrayList<String>();
-            } else {
-                subscriptionIdList.clear();
-            }
-
             if (MeteorSingleton.getInstance().isLoggedIn()) {
                 isCottonReady = true;
 
@@ -360,9 +354,8 @@ public class MyDevicesShowActivity extends Activity {
                             // Ignore
                         }
                     }
-                    String subId = MeteorSingleton.getInstance().subscribe("devicesControlEventsLater",
-                            new Object[]{device_ids.toArray()});
-                    subscriptionIdList.add(subId);
+                    subscriptionId = MeteorSingleton.getInstance()
+                            .subscribe("devicesControlEventsLater", new Object[]{device_ids.toArray()});
                 }
             } else {
                 isCottonReady = false;
@@ -475,16 +468,10 @@ public class MyDevicesShowActivity extends Activity {
 
         mBluetoothLeService = null;
 
-        if (isCottonReady) {
-            if (subscriptionIdList != null) {
-                for (String _s : subscriptionIdList) {
-                    MeteorSingleton.getInstance().unsubscribe(_s);
-                }
-            }
-            MeteorSingleton.getInstance().removeCallbacks();
+        MeteorSingleton.getInstance().unsubscribe(subscriptionId);
+        MeteorSingleton.getInstance().removeCallbacks();
 
-            isCottonReady = false;
-        }
+        isCottonReady = false;
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
