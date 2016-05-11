@@ -30,6 +30,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import im.delight.android.ddp.Meteor;
 import im.delight.android.ddp.MeteorCallback;
+import im.delight.android.ddp.MeteorSingleton;
 import im.delight.android.ddp.ResultListener;
 import im.delight.android.ddp.db.memory.InMemoryDatabase;
 import me.iasc.vultureegg.app.ble.*;
@@ -54,18 +55,10 @@ public class DeviceControlActivity extends Activity {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
     private Tracker mTracker;
 
-    public static String mCottonServer = "ws://192.168.199.240:3000/websocket";
-
-    private static boolean isCottonReady = false;
-    private static Meteor mMeteor;
-    private static InMemoryDatabase meteorDb;
-
     public static String EGG_PROJECT_NAME = "Vulture Egg", STATION_PROJECT_NAME = "Vulture Egg Station";
     public static String[] PROJECT_NAMES = new String[]{EGG_PROJECT_NAME, STATION_PROJECT_NAME};
 
-    public static String M_COTTON_LAN = "192.168.199.240:3000";
-
-    private static String email = "iasc@163.com", password = "123456";
+    private static String subscriptionId;
 
     private Map mCottonDevices = new HashMap<String, String>();
     private ArrayList spinnerList = new ArrayList<String>();
@@ -214,32 +207,17 @@ public class DeviceControlActivity extends Activity {
     };
 
     private void renewMeteor() {
-        if (mMeteor == null) {
-            Log.v(TAG, "mCottonServer mMeteor new");
-
-            try {
-                mCottonServer = "ws://" + settings.getString(SettingActivity.SET_M_COTTON, M_COTTON_LAN) + "/websocket";
-                email = settings.getString(SettingActivity.SET_M_MCOTTON_USER, "");
-                password = settings.getString(SettingActivity.SET_M_MCOTTON_PASSWORD, "");
-
-                Log.d(TAG, "mCottonServer init : " + mCottonServer);
-
-                // mMeteor = new Meteor(this, mCottonServer);
-                meteorDb = new InMemoryDatabase();
-                mMeteor = new Meteor(this, mCottonServer, meteorDb);
-                mMeteor.addCallback(mMeteorCallback);
-                mMeteor.connect();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (MeteorSingleton.getInstance() == null) {
+            Toast.makeText(getApplicationContext(), "Please check your mCotton account", Toast.LENGTH_LONG).show();
         } else {
             Log.v(TAG, "mCottonServer mMeteor old");
 
-            if (mMeteor.isLoggedIn()) {
-                isCottonReady = true;
+            if (MeteorSingleton.getInstance().isLoggedIn()) {
+                MeteorSingleton.getInstance().addCallback(mMeteorCallback);
+                subscriptionId = MeteorSingleton.getInstance().subscribe("projectDevicesOfMine", new Object[]{PROJECT_NAMES});
+                //isCottonReady = true;
             } else {
-                isCottonReady = false;
+                //isCottonReady = false;
             }
         }
     }
@@ -248,35 +226,12 @@ public class DeviceControlActivity extends Activity {
         @Override
         public void onConnect(boolean signedInAutomatically) {
             Log.v(TAG, "mCottonServer onConnect");
-
-            if (mMeteor == null) return;
-
-            mMeteor.loginWithEmail(email, password, new ResultListener() {
-                @Override
-                public void onSuccess(String s) {
-                    Log.v(TAG, "mCottonServer Logon");
-
-                    isCottonReady = true;
-                    mMeteor.subscribe("projectDevicesOfMine", new Object[]{PROJECT_NAMES});
-
-                    Toast.makeText(getApplicationContext(), "mCotton Logon", Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onError(String s, String s1, String s2) {
-                    Log.v(TAG, "Login Error : " + s);
-
-                    isCottonReady = false;
-
-                    Toast.makeText(getApplicationContext(), "Please check your mCotton account", Toast.LENGTH_LONG).show();
-                }
-            });
         }
 
         @Override
         public void onDisconnect() {
             Log.v(TAG, "mCottonServer onDisconnect");
-            isCottonReady = false;
+            //isCottonReady = false;
         }
 
         @Override
@@ -397,8 +352,6 @@ public class DeviceControlActivity extends Activity {
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeServiceN.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-
-        renewMeteor();
     }
 
     @Override
@@ -412,6 +365,8 @@ public class DeviceControlActivity extends Activity {
             Log.d(TAG, "Connect request result=" + result);
         }
 
+        renewMeteor();
+
         mTracker.setScreenName("DeviceControlActivity");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
@@ -423,6 +378,9 @@ public class DeviceControlActivity extends Activity {
 
         updateDeviceInfo();
         deviceDAO.update(currDevice);
+
+        MeteorSingleton.getInstance().unsubscribe(subscriptionId);
+        MeteorSingleton.getInstance().removeCallbacks();
     }
 
     @Override
@@ -430,11 +388,6 @@ public class DeviceControlActivity extends Activity {
         super.onDestroy();
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
-
-        if (mMeteor != null && mMeteor.isConnected()) {
-            mMeteor.disconnect();
-        }
-        mMeteor = null;
     }
 
     @Override
@@ -570,9 +523,6 @@ public class DeviceControlActivity extends Activity {
             radioStation.setChecked(true);
         else
             radioEgg.setChecked(true);
-
-        //editName.setFocusable(false);
-        //editName.selectAll();
     }
 
     public void updateDeviceInfo() {

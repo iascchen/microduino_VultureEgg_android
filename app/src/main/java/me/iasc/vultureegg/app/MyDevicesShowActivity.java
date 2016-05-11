@@ -30,16 +30,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+
 import im.delight.android.ddp.Meteor;
 import im.delight.android.ddp.MeteorCallback;
-import im.delight.android.ddp.ResultListener;
+import im.delight.android.ddp.MeteorSingleton;
 import me.iasc.vultureegg.app.ble.*;
 import me.iasc.vultureegg.app.ble.characteristics.MyMeasureValue;
 import me.iasc.vultureegg.app.db.RecordDAO;
 import me.iasc.vultureegg.app.db.RecordModel;
 import me.iasc.vultureegg.app.db.DeviceModel;
+
 import org.json.JSONObject;
 
 import java.util.*;
@@ -54,21 +57,23 @@ public class MyDevicesShowActivity extends Activity {
 
     public static String CTRL_QUA = "QuaInterval", CTRL_TEM = "TemInterval", CTRL_HUM = "HumInterval";
 
-    public static String M_COTTON_LAN = "192.168.199.240:3000";
-    public static String mCottonServer = "ws://192.168.199.240:3000/websocket";
-
+    //    public static String M_COTTON_LAN = "192.168.199.240:3000";
+//    public static String mCottonServer = "ws://192.168.199.240:3000/websocket";
+//
     private static boolean isCottonReady = false;
-    private static Meteor mMeteor;
+//    private static Meteor mMeteor;
 
-    // private static String email = "iasc@163.com", password = "SucMicro123";
-    private static String email = "iasc@163.com", password = "123456";
+//    // private static String email = "iasc@163.com", password = "SucMicro123";
+//    private static String email = "iasc@163.com", password = "123456";
+
+    private static List<String> subscriptionIdList;
 
     public static final String ARG_DEVICES = "all_devices";
 
     static SharedPreferences settings;
     static SharedPreferences.Editor editor;
 
-    private List<DeviceModel> devicelist;
+    private List<DeviceModel> deviceList;
 
     private BluetoothLeServiceN mBluetoothLeService;
 
@@ -99,8 +104,8 @@ public class MyDevicesShowActivity extends Activity {
             }
             // Automatically connects to the device upon successful start-up initialization.
 
-            if (devicelist != null) {
-                for (DeviceModel _d : devicelist) {
+            if (deviceList != null) {
+                for (DeviceModel _d : deviceList) {
                     try {
                         mBluetoothLeService.connect(_d.getAddress());
                     } catch (Exception e) {
@@ -112,8 +117,8 @@ public class MyDevicesShowActivity extends Activity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if (devicelist != null) {
-                for (DeviceModel _d : devicelist) {
+            if (deviceList != null) {
+                for (DeviceModel _d : deviceList) {
                     try {
                         mBluetoothLeService.disconnect(_d.getAddress());
                     } catch (Exception e) {
@@ -157,7 +162,7 @@ public class MyDevicesShowActivity extends Activity {
         recordDAO = new RecordDAO(this);
 
         Intent intent = getIntent();
-        devicelist = intent.getParcelableArrayListExtra(ARG_DEVICES);
+        deviceList = intent.getParcelableArrayListExtra(ARG_DEVICES);
 
         getActionBar().setTitle(getString(R.string.title_show));
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -187,7 +192,7 @@ public class MyDevicesShowActivity extends Activity {
             }
         });
 
-        for (DeviceModel _d : devicelist) {
+        for (DeviceModel _d : deviceList) {
             String _adr = _d.getAddress();
             Log.v(TAG, "device: " + _adr);
 
@@ -241,12 +246,14 @@ public class MyDevicesShowActivity extends Activity {
     }
 
     private void sendControlEvent(String deviceId, String name, String value) {
-        Map<String, Object> entity = new HashMap<String, Object>();
-        entity.put("device_id", deviceId);
-        entity.put("control_name", name);
-        entity.put("control_value", value);
+        if (isCottonReady) {
+            Map<String, Object> entity = new HashMap<String, Object>();
+            entity.put("device_id", deviceId);
+            entity.put("control_name", name);
+            entity.put("control_value", value);
 
-        mMeteor.call("controlEventInsert", new Object[]{entity});
+            MeteorSingleton.getInstance().call("controlEventInsert", new Object[]{entity});
+        }
     }
 
     private void updateInterval(boolean sendToMeteor) {
@@ -310,7 +317,7 @@ public class MyDevicesShowActivity extends Activity {
         mTracker.send(new HitBuilders.EventBuilder().setCategory("Action")
                 .setAction("ApplyInterval").setLabel(label).build());
 
-        for (DeviceModel _d : devicelist) {
+        for (DeviceModel _d : deviceList) {
             String _adr = _d.getAddress();
             if (_d.getType().equals(DeviceModel.TYPE_EGG)) {
                 SetIntervalTask task = new SetIntervalTask();
@@ -326,24 +333,37 @@ public class MyDevicesShowActivity extends Activity {
     }
 
     private void renewMeteor() {
-        if (mMeteor == null) {
-            try {
-                mCottonServer = "ws://" + settings.getString(SettingActivity.SET_M_COTTON, M_COTTON_LAN) + "/websocket";
-                email = settings.getString(SettingActivity.SET_M_MCOTTON_USER, "");
-                password = settings.getString(SettingActivity.SET_M_MCOTTON_PASSWORD, "");
-
-                Log.d(TAG, "mCottonServer init : " + mCottonServer);
-
-                mMeteor = new Meteor(this, mCottonServer);
-                mMeteor.addCallback(mMeteorCallback);
-                mMeteor.connect();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (MeteorSingleton.getInstance() == null) {
+            Toast.makeText(getApplicationContext(), "Please check your mCotton account", Toast.LENGTH_LONG).show();
+            isCottonReady = false;
         } else {
-            if (mMeteor.isLoggedIn()) {
+            Log.v(TAG, "mCottonServer mMeteor old");
+
+            if (subscriptionIdList == null) {
+                subscriptionIdList = new ArrayList<String>();
+            } else {
+                subscriptionIdList.clear();
+            }
+
+            if (MeteorSingleton.getInstance().isLoggedIn()) {
                 isCottonReady = true;
+
+                MeteorSingleton.getInstance().addCallback(mMeteorCallback);
+
+                if (deviceList != null) {
+                    ArrayList<String> device_ids = new ArrayList<String>();
+
+                    for (DeviceModel _d : deviceList) {
+                        try {
+                            device_ids.add(_d.getDeviceId());
+                        } catch (Exception e) {
+                            // Ignore
+                        }
+                    }
+                    String subId = MeteorSingleton.getInstance().subscribe("devicesControlEventsLater",
+                            new Object[]{device_ids.toArray()});
+                    subscriptionIdList.add(subId);
+                }
             } else {
                 isCottonReady = false;
             }
@@ -354,35 +374,7 @@ public class MyDevicesShowActivity extends Activity {
         @Override
         public void onConnect(boolean signedInAutomatically) {
             Log.v(TAG, "mCottonServer onConnect");
-
-            mMeteor.loginWithEmail(email, password, new ResultListener() {
-                @Override
-                public void onSuccess(String s) {
-                    Log.v(TAG, "mCottonServer Logon");
-                    isCottonReady = true;
-
-                    Toast.makeText(getApplicationContext(), "mCotton Logon", Toast.LENGTH_LONG).show();
-
-                    if (devicelist != null) {
-                        ArrayList<String> device_ids = new ArrayList<String>();
-
-                        for (DeviceModel _d : devicelist) {
-                            try {
-                                device_ids.add(_d.getDeviceId());
-                            } catch (Exception e) {
-                                // Ignore
-                            }
-                        }
-                        mMeteor.subscribe("devicesControlEventsLater", new Object[]{device_ids.toArray()});
-                    }
-                }
-
-                @Override
-                public void onError(String s, String s1, String s2) {
-                    Log.v(TAG, "Login Error : " + s);
-                    Toast.makeText(getApplicationContext(), "Please check your mCotton account", Toast.LENGTH_LONG).show();
-                }
-            });
+            isCottonReady = true;
         }
 
         @Override
@@ -452,17 +444,6 @@ public class MyDevicesShowActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        String newServer = "ws://" + settings.getString(SettingActivity.SET_M_COTTON, M_COTTON_LAN) + "/websocket";
-        if (!mCottonServer.equals(newServer)) {
-            Log.d(TAG, "mCottonServer changed: " + newServer);
-
-            mCottonServer = newServer;
-            mMeteor.disconnect();
-            mMeteor = null;
-
-            renewMeteor();
-        }
-
         mTracker.setScreenName("MyDevicesShowActivity");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
@@ -482,8 +463,8 @@ public class MyDevicesShowActivity extends Activity {
         if (mServiceConnection != null)
             unbindService(mServiceConnection);
 
-        if (mBluetoothLeService != null && devicelist != null) {
-            for (DeviceModel _d : devicelist) {
+        if (mBluetoothLeService != null && deviceList != null) {
+            for (DeviceModel _d : deviceList) {
                 try {
                     mBluetoothLeService.disconnect(_d.getAddress());
                 } catch (Exception e) {
@@ -494,10 +475,16 @@ public class MyDevicesShowActivity extends Activity {
 
         mBluetoothLeService = null;
 
-        if (mMeteor != null && mMeteor.isConnected()) {
-            mMeteor.disconnect();
+        if (isCottonReady) {
+            if (subscriptionIdList != null) {
+                for (String _s : subscriptionIdList) {
+                    MeteorSingleton.getInstance().unsubscribe(_s);
+                }
+            }
+            MeteorSingleton.getInstance().removeCallbacks();
+
+            isCottonReady = false;
         }
-        mMeteor = null;
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
@@ -569,7 +556,7 @@ public class MyDevicesShowActivity extends Activity {
 
                                 ConcurrentHashMap map = EggMessage.parse(si.deviceId, msg);
                                 saveMessageToDB(recordDAO, map);
-                                sendMessageToMCotton(mMeteor, map);
+                                sendMessageToMCotton(MeteorSingleton.getInstance(), map);
 
                                 textview.setText(si.toString() + "\n" + msg);
                             }
@@ -590,7 +577,7 @@ public class MyDevicesShowActivity extends Activity {
                                 ConcurrentHashMap map = EggStationMessage.parse(si.deviceId, msg);
 
                                 saveMessageToDB(recordDAO, map);
-                                sendMessageToMCotton(mMeteor, map);
+                                sendMessageToMCotton(MeteorSingleton.getInstance(), map);
 
                                 textview.setText(si.toString() + "\n" + msg);
                             }
@@ -782,7 +769,7 @@ public class MyDevicesShowActivity extends Activity {
 
     public static void sendMessageToMCotton(Meteor meteor, ConcurrentHashMap msg) {
         if (isCottonReady) {
-            //Log.v(TAG, "sendMessageToMCotton : " + msg);
+            Log.v(TAG, "sendMessageToMCotton : " + msg);
             meteor.call("dataMessageInsert", new Object[]{msg});
         }
     }

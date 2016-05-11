@@ -20,14 +20,26 @@ package me.iasc.vultureegg.app;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.*;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+
+import org.json.JSONObject;
+
+import im.delight.android.ddp.Meteor;
+import im.delight.android.ddp.MeteorCallback;
+import im.delight.android.ddp.MeteorSingleton;
+import im.delight.android.ddp.ResultListener;
+import im.delight.android.ddp.db.memory.InMemoryDatabase;
 import me.iasc.vultureegg.app.db.DeviceDAO;
 import me.iasc.vultureegg.app.db.DeviceModel;
 
@@ -52,7 +64,15 @@ public class MyDeviceActivity extends ListActivity {
 
     private static final int REQUEST_ADD_DEVICE = 1;
 
-    int currIndex = -1;
+    public static String M_COTTON_LAN = "192.168.199.240:3000";
+    private static String email = "iasc@163.com", password = "123456";
+
+    public static String mCottonServer = "ws://192.168.199.240:3000/websocket";
+
+    //    private static Meteor mMeteor;
+    private static InMemoryDatabase meteorDb;
+
+    static SharedPreferences settings;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,11 +81,15 @@ public class MyDeviceActivity extends ListActivity {
         VultureEggApplication application = (VultureEggApplication) getApplication();
         mTracker = application.getDefaultTracker();
 
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
+
         deviceDAO = new DeviceDAO(this);
         devicelist = deviceDAO.getDevices();
         Log.v(TAG, "device count : " + devicelist.size());
 
         getActionBar().setTitle(getString(R.string.app_name));
+
+        renewMeteor();
     }
 
     @Override
@@ -131,6 +155,15 @@ public class MyDeviceActivity extends ListActivity {
 
         queryMyDevices();
 
+        String newServer = "ws://" + settings.getString(SettingActivity.SET_M_COTTON, M_COTTON_LAN) + "/websocket";
+        String newEmail = settings.getString(SettingActivity.SET_M_MCOTTON_USER, "");
+        String newPassword = settings.getString(SettingActivity.SET_M_MCOTTON_PASSWORD, "");
+        if (!mCottonServer.equals(newServer)
+                || !email.equals(newEmail)
+                || !password.equals(newPassword)) {
+            renewMeteor();
+        }
+
         mTracker.setScreenName("MyDeviceActivity");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
@@ -160,6 +193,81 @@ public class MyDeviceActivity extends ListActivity {
         final Intent intent = new Intent(this, DeviceControlActivity.class);
         intent.putExtra(DeviceControlActivity.ARG_DEVICE, device);
         startActivity(intent);
+    }
+
+    final MeteorCallback mMeteorCallback = new MeteorCallback() {
+        @Override
+        public void onConnect(boolean signedInAutomatically) {
+            Log.v(TAG, "mCottonServer onConnect");
+
+            MeteorSingleton.getInstance().loginWithEmail(email, password, new ResultListener() {
+                @Override
+                public void onSuccess(String s) {
+                    Log.v(TAG, "mCottonServer Logon");
+                    Toast.makeText(getApplicationContext(), "mCotton Logon", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onError(String s, String s1, String s2) {
+                    Log.v(TAG, "Login Error : " + s);
+                    Toast.makeText(getApplicationContext(), "Please check your mCotton account", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @Override
+        public void onDisconnect() {
+            Log.v(TAG, "mCottonServer onDisconnect");
+        }
+
+        @Override
+        public void onDataAdded(String collectionName, String documentID, String newValuesJson) {
+            Log.v(TAG, "mCottonServer onDataAdded:" + collectionName + " ==> " + documentID + " , " + newValuesJson);
+        }
+
+        @Override
+        public void onDataChanged(String collectionName, String documentID, String updatedValuesJson, String removedValuesJson) {
+            Log.v(TAG, "mCottonServer onDataChanged:" + collectionName);
+        }
+
+        @Override
+        public void onDataRemoved(String collectionName, String documentID) {
+            Log.v(TAG, "mCottonServer onDataRemoved:" + collectionName);
+        }
+
+        @Override
+        public void onException(Exception e) {
+            Log.v(TAG, "mCottonServer onException:" + e);
+        }
+    };
+
+    private void renewMeteor() {
+        try {
+            if (MeteorSingleton.getInstance() != null) {
+                MeteorSingleton.getInstance().destroyInstance();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+
+        Log.v(TAG, "mCottonServer mMeteor new");
+
+        try {
+            mCottonServer = "ws://" + settings.getString(SettingActivity.SET_M_COTTON, M_COTTON_LAN) + "/websocket";
+            email = settings.getString(SettingActivity.SET_M_MCOTTON_USER, "");
+            password = settings.getString(SettingActivity.SET_M_MCOTTON_PASSWORD, "");
+
+            Log.d(TAG, "mCottonServer init : " + mCottonServer);
+
+            meteorDb = new InMemoryDatabase();
+
+            MeteorSingleton.createInstance(this, mCottonServer, meteorDb);
+            MeteorSingleton.getInstance().addCallback(mMeteorCallback);
+            MeteorSingleton.getInstance().connect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void queryMyDevices() {

@@ -21,9 +21,6 @@ import android.app.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 
-/**
- * Created by Ravi on 13/08/15.
- */
 public class VultureEggApplication extends Application {
     public static final String TAG = VultureEggApplication.class.getSimpleName();
 
