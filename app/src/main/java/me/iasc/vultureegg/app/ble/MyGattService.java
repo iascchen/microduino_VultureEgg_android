@@ -28,6 +28,7 @@ public class MyGattService {
 
     public final static UUID SOFT_SERIAL_SERVICE = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
     public final static UUID VULTURE_SERVICE = UUID.fromString("0000f0c0-0000-1000-8000-00805f9b34fb");
+//    public final static UUID VULTURE_SERVICE = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
 
     static {
         attributes.put(SOFT_SERIAL_SERVICE, "Microduino BLE Serial");

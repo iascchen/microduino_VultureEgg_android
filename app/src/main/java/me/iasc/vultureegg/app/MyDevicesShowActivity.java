@@ -660,20 +660,11 @@ public class MyDevicesShowActivity extends Activity {
 
             // Enable notify
 
-            if (DeviceModel.TYPE_STATION.equals(si.type)) {
-                if (mBluetoothLeService == null) return "Failed";
-                ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
-                        MyGattService.SOFT_SERIAL_SERVICE, MyGattCharacteristic.MD_RX_TX, true);
-                if (ret) waitIdle();
-                else Log.v(TAG, "Error Enable Microduino Serial");
-            } else if (DeviceModel.TYPE_EGG.equals(si.type)) {
-
-                if (mBluetoothLeService == null) return "Failed";
-                ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
-                        MyGattService.VULTURE_SERVICE, MyGattCharacteristic.COMMAND_TRANS, true);
-                if (ret) waitIdle();
-                else Log.v(TAG, "Error Enable COMMAND_DATA");
-            }
+            if (mBluetoothLeService == null) return "Failed";
+            ret = mBluetoothLeService.enableGattCharacteristicNotification(address,
+                    MyGattService.SOFT_SERIAL_SERVICE, MyGattCharacteristic.MD_RX_TX, true);
+            if (ret) waitIdle();
+            else Log.v(TAG, "Error Enable Microduino Serial");
 
             return "Done";
         }

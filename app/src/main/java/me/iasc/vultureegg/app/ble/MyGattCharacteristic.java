@@ -29,13 +29,11 @@ public class MyGattCharacteristic {
     public final static UUID MD_RX_TX = UUID.fromString("0000fff6-0000-1000-8000-00805f9b34fb");
 
     public final static UUID COMMAND_CMD = UUID.fromString("0000f0c1-0000-1000-8000-00805f9b34fb");
-    public final static UUID COMMAND_TRANS = UUID.fromString("0000f0c2-0000-1000-8000-00805f9b34fb");
 
     static {
         attributes.put(MD_RX_TX, "Microduino BLE Serial");
 
         attributes.put(COMMAND_CMD, "VultureEgg Command.Cmd");
-        attributes.put(COMMAND_TRANS, "VultureEgg Command.Data");
     }
 
     public static String lookup(UUID uuid, String defaultName) {
